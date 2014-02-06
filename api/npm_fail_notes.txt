@@ -1,0 +1,7 @@
+
+> contextify@0.1.6 install /home/avail/code/hpms/api/node_modules/topojson/node_modules/d3/node_modules/jsdom/node_modules/contextify
+> node-gyp rebuild
+
+make: Entering directory `/home/avail/code/hpms/api/node_modules/topojson/node_modules/d3/node_modules/jsdom/node_modules/contextify/build'
+  CXX(target) Release/obj.target/contextify/src/contextify.o
+make: Leaving directory `/home/avail/code/hpms/api/node_modules/topojson/node_modules/d3/node_modules/jsdom/node_modules/contextify/build'
