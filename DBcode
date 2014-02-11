@@ -1,0 +1,26 @@
+﻿/*INSERT into hpms ("tableName", "createdAt", "updatedAt")
+SELECT table_name, now(), now()
+FROM information_schema.tables
+WHERE table_schema = 'public' AND table_name LIKE '%2012'
+AND NOT EXISTS (SELECT table_name FROM hpms AS t WHERE t."tableName" = table_name)*/
+
+DO
+$do$
+DECLARE
+	r information_schema.tables%rowtype;
+BEGIN
+    FOR r IN SELECT * FROM information_schema.tables 
+	WHERE table_schema = 'public' AND table_name LIKE '%2012'
+    LOOP
+	EXECUTE 'UPDATE hpms h SET "dataYear" =
+		(SELECT year_recor FROM ' || r.table_name || ' LIMIT 1)
+		WHERE h."tableName" = ''' || r.table_name || '''';
+	EXECUTE 'UPDATE hpms h SET "numSegments" =
+		(SELECT count(*) FROM ' || r.table_name || ')
+		WHERE h."tableName" = ''' || r.table_name || '''';
+	EXECUTE 'UPDATE hpms h SET "stateFIPS" =
+		(SELECT state_code FROM ' || r.table_name || ' LIMIT 1)
+		WHERE h."tableName" = ''' || r.table_name || '''';
+    END LOOP;
+END
+$do$

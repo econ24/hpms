@@ -38,8 +38,7 @@ module.exports.routes = {
   '/hpms/:id/geo': {
         controller    : 'hpms',
         action        : 'geo'
-  },
-
+  }
   /*
   // But what if you want your home page to display
   // a signup form located at `views/user/signup.ejs`?
