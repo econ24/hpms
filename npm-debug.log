@@ -8,7 +8,11 @@
 6 error     <http://github.com/isaacs/npm/issues>
 6 error or email it to:
 6 error     <npm-@googlegroups.com>
+<<<<<<< HEAD
 7 error System Linux 3.11.0-18-generic
+=======
+7 error System Linux 3.8.0-35-generic
+>>>>>>> 4b0e93805398810b267ab1ddd78d045f73aa535f
 8 error command "/usr/local/bin/node" "/usr/local/bin/npm" "install"
 9 error cwd /home/econ24/code/hpms
 10 error node -v v0.10.18
