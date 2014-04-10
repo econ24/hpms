@@ -1,0 +1,14 @@
+#header {
+	height: 50px;
+	font-size: 50px;
+}
+
+.route th {
+	font-size: 20px;
+	text-align: left;
+}
+
+.firstColumn {
+	padding: 0 10px 0 25px;
+	text-align: right;
+}

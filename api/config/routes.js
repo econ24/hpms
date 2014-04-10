@@ -33,11 +33,12 @@ module.exports.routes = {
   // 
   // (This would also work if you had a file at: `/views/home.ejs`)
   '/': {
-    view: 'home/index'
+      view: 'home/index'
   },
+
   '/hpms/:id/geo': {
-        controller    : 'hpms',
-        action        : 'geo'
+      controller    : 'hpms',
+      action        : 'geo'
   }
   /*
   // But what if you want your home page to display

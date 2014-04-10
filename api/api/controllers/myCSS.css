@@ -1,0 +1,64 @@
+body {
+  margin: 0;
+}
+
+.map {
+  position: relative;
+  overflow: hidden;
+}
+
+.layer {
+  position: absolute;
+}
+
+.tile {
+  position: absolute;
+  width: 256px;
+  height: 256px;
+  stroke: #000;
+}
+
+.tile path {
+  fill: none;
+  stroke: #000;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.road {
+  stroke: #f00;
+}
+
+.type-1 {
+  stroke-width: 7px;
+}
+
+.type-2 {
+  stroke-width: 6px;
+}
+
+.type-3 {
+  stroke-width: 5px;
+}
+
+.type-4 {
+  stroke-width: 4px;
+}
+
+.type-5 {
+  stroke-width: 3px;
+}
+
+.type-6 {
+  stroke-width: 2px;
+}
+
+.type-7 {
+  stroke-width: 1px;
+}
+
+.info {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}

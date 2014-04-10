@@ -1,4 +1,3 @@
-var topojson = require("topojson");
 /**
  * HpmsController
  *
@@ -17,64 +16,75 @@ var topojson = require("topojson");
  */
 
 module.exports = {
+    // This controller method requests and returns data
+    // for the specified state and an optional road type.
+    geo: function(req, res) {
 
-  geo: function(req, res) {
+        // Search HPMS table by FIPS code.
+      	Hpms.find().where({ stateFIPS :req.param('id')}).exec(function (err, result) {
+            // retrieve table name from search result
+        	var tableName = result[0].tableName;
 
-    // search for table by FIPS code
-  	Hpms.find().where({ stateFIPS :req.param('id')}).exec(function (err, hpms) {
+            // create geoJSON feature collection object
+        	var routesCollection = {};
+        	routesCollection.type = "FeatureCollection";
+        	routesCollection.features = [];
 
-    	var tableName = hpms[0].tableName;
+            // create SQL query string
+        	var sql = 'SELECT ST_AsGeoJSON(the_geom) AS route_shape, state_code, aadt_vn, f_system_v FROM "'+tableName+'"';
 
-      // create geoJSON objects
-    	var routesCollection = {};
-    	routesCollection.type = "FeatureCollection";
-    	routesCollection.features = [];
+            // check for a specific road type
+            var roadType = +req.param("roadType");
+            if (roadType >= 1 && roadType <= 7) {
+                sql += " WHERE f_system_v = " + roadType;
+            }
 
-    	var sql = 'SELECT ST_AsGeoJSON(the_geom) AS route_shape, aadt_vn, f_system_v FROM "'+tableName+'"';
+            // query the DB
+        	Hpms.query(sql,{},function(err, resultSet) {
+        		if (err) {
+                    res.send('{status:"error",message:"'+err+'"}',500);
+                    return console.log(err);
+                }
+                // for each result in the result set, generate a new geoJSON feature object
+                resultSet.rows.forEach(function(route){
+        			var routeFeature = {};
+        			routeFeature.type="Feature";
+                    // retrieve geometry data
+        			routeFeature.geometry = JSON.parse(route.route_shape);
+                    // retrieve properties
+        			routeFeature.properties = {};
+                    routeFeature.properties.state = route.state_code;
+                    routeFeature.properties.aadt = route.aadt_vn;
+                    routeFeature.properties.roadType = route.f_system_v;
+        			routesCollection.features.push(routeFeature);
+        		});
 
-      var roadType = req.param("roadType");
-      if (roadType > 0) {
-        sql += " WHERE f_system_v = " + roadType;
-      }
+                // convert the geoJSON into a simplified topoJSON object to reduce size
+                var topojson = require("topojson"),
+      		 	    topology = topojson.topology({geo: routesCollection},
+                                                 {"property-transform": preserveProperties, "quantization": 1e6});
+                topology = topojson.simplify(topology, {"minimum-area": 5e-6, "coordinate-system": "cartesian"});
 
-    	Hpms.query(sql,{},function(err,data){
-    		if (err) {
-         res.send('{status:"error",message:"'+err+'"}',500);
-         return console.log(err);
-        }
-        data.rows.forEach(function(route){
-    			var routeFeature = {};
-    			routeFeature.type="Feature";
-    			routeFeature.geometry = JSON.parse(route.route_shape);
-    			routeFeature.properties = {};
-    		  routeFeature.properties.aadt = route.aadt_vn;
-          routeFeature.properties.roadType = route.f_system_v;
-    			routesCollection.features.push(routeFeature);
-    		});
+                // append topoJSON to response object
+    			res.send(topology);
 
-    		if(req.param('format') == 'geo'){
-    			//JSON.stringify();
-    			res.send(routesCollection);	
-    		}
-    		else{
-  		 	var topology = topojson.topology({geo: routesCollection}, {"property-transform": preserveProperties});
-    			res.send(JSON.stringify(topology));
-    		}
+                // This method is used by the above opoJSON conversion in order to preserve the geoJSON properties
+                function preserveProperties(p, k, v) {
+                    p[k] = v;
+                    return true;
+                }
+        	}); // end Hpms.query function
 
-        function preserveProperties(p, k, v) {
-          p[k] = v;
-          return true;
-        }
-    	}); // end Hpms.query function
-    }) // end Hpms.find function
-  }, // end geo function
+        }) // end Hpms.find function
+
+    }, // end geo function
 
 
-  /**
-   * Overrides for the settings in `config/controllers.js`
-   * (specific to HpmsController)
-   */
-  _config: {}
+      /**
+       * Overrides for the settings in `config/controllers.js`
+       * (specific to HpmsController)
+       */
+    _config: {}
 
   
 };
