@@ -21,9 +21,9 @@ module.exports = {
     geo: function(req, res) {
 
         // Search HPMS table by FIPS code.
-      	Hpms.find().where({ stateFIPS :req.param('id')}).exec(function (err, result) {
+      	Hpms.find().where({ state_fips :req.param('id')}).exec(function (err, result) {
             // retrieve table name from search result
-        	var tableName = result[0].tableName;
+        	var tableName = result[0].table_name;
 
             // create geoJSON feature collection object
         	var routesCollection = {};
