@@ -1,2 +1,0 @@
-# api
-### a Sails application

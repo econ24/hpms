@@ -1,8 +1,75 @@
-﻿/*INSERT into hpms ("tableName", "createdAt", "updatedAt")
+﻿﻿DO
+$do$
+DECLARE
+	r information_schema.tables%rowtype;
+BEGIN
+    FOR r IN SELECT * FROM information_schema.tables 
+	WHERE table_schema = 'public' AND table_name LIKE '%2012'
+    LOOP
+	EXECUTE 'UPDATE hpms h SET "min_aadt" =
+		(SELECT min(aadt_vn) FROM ' || r.table_name || ')
+		WHERE h."table_name" = ''' || r.table_name || '''';
+	EXECUTE 'UPDATE hpms h SET "max_aadt" =
+		(SELECT max(aadt_vn) FROM ' || r.table_name || ')
+		WHERE h."table_name" = ''' || r.table_name || '''';
+		
+	EXECUTE 'UPDATE hpms h SET "min_type1" =
+		(SELECT min(aadt_vn) FROM ' || r.table_name || ' WHERE "f_system_v" = 1)
+		WHERE h."table_name" = ''' || r.table_name || '''';
+	EXECUTE 'UPDATE hpms h SET "max_type1" =
+		(SELECT max(aadt_vn) FROM ' || r.table_name || ' WHERE "f_system_v" = 1)
+		WHERE h."table_name" = ''' || r.table_name || '''';
+		
+	EXECUTE 'UPDATE hpms h SET "min_type2" =
+		(SELECT min(aadt_vn) FROM ' || r.table_name || ' WHERE "f_system_v" = 2)
+		WHERE h."table_name" = ''' || r.table_name || '''';
+	EXECUTE 'UPDATE hpms h SET "max_type2" =
+		(SELECT max(aadt_vn) FROM ' || r.table_name || ' WHERE "f_system_v" = 2)
+		WHERE h."table_name" = ''' || r.table_name || '''';
+		
+	EXECUTE 'UPDATE hpms h SET "min_type3" =
+		(SELECT min(aadt_vn) FROM ' || r.table_name || ' WHERE "f_system_v" = 3)
+		WHERE h."table_name" = ''' || r.table_name || '''';
+	EXECUTE 'UPDATE hpms h SET "max_type3" =
+		(SELECT max(aadt_vn) FROM ' || r.table_name || ' WHERE "f_system_v" = 3)
+		WHERE h."table_name" = ''' || r.table_name || '''';
+		
+	EXECUTE 'UPDATE hpms h SET "min_type4" =
+		(SELECT min(aadt_vn) FROM ' || r.table_name || ' WHERE "f_system_v" = 4)
+		WHERE h."table_name" = ''' || r.table_name || '''';
+	EXECUTE 'UPDATE hpms h SET "max_type4" =
+		(SELECT max(aadt_vn) FROM ' || r.table_name || ' WHERE "f_system_v" = 4)
+		WHERE h."table_name" = ''' || r.table_name || '''';
+		
+	EXECUTE 'UPDATE hpms h SET "min_type5" =
+		(SELECT min(aadt_vn) FROM ' || r.table_name || ' WHERE "f_system_v" = 5)
+		WHERE h."table_name" = ''' || r.table_name || '''';
+	EXECUTE 'UPDATE hpms h SET "max_type5" =
+		(SELECT max(aadt_vn) FROM ' || r.table_name || ' WHERE "f_system_v" = 5)
+		WHERE h."table_name" = ''' || r.table_name || '''';
+		
+	EXECUTE 'UPDATE hpms h SET "min_type6" =
+		(SELECT min(aadt_vn) FROM ' || r.table_name || ' WHERE "f_system_v" = 6)
+		WHERE h."table_name" = ''' || r.table_name || '''';
+	EXECUTE 'UPDATE hpms h SET "max_type6" =
+		(SELECT max(aadt_vn) FROM ' || r.table_name || ' WHERE "f_system_v" = 6)
+		WHERE h."table_name" = ''' || r.table_name || '''';
+		
+	EXECUTE 'UPDATE hpms h SET "min_type7" =
+		(SELECT min(aadt_vn) FROM ' || r.table_name || ' WHERE "f_system_v" = 7)
+		WHERE h."table_name" = ''' || r.table_name || '''';
+	EXECUTE 'UPDATE hpms h SET "max_type7" =
+		(SELECT max(aadt_vn) FROM ' || r.table_name || ' WHERE "f_system_v" = 7)
+		WHERE h."table_name" = ''' || r.table_name || '''';
+    END LOOP;
+END
+$do$
+
+/*INSERT into hpms ("table_name", "createdAt", "updatedAt")
 SELECT table_name, now(), now()
 FROM information_schema.tables
 WHERE table_schema = 'public' AND table_name LIKE '%2012'
-AND NOT EXISTS (SELECT table_name FROM hpms AS t WHERE t."tableName" = table_name)*/
+AND NOT EXISTS (SELECT table_name FROM hpms AS t WHERE t."table_name" = table_name)*/
 
 DO
 $do$
@@ -12,15 +79,12 @@ BEGIN
     FOR r IN SELECT * FROM information_schema.tables 
 	WHERE table_schema = 'public' AND table_name LIKE '%2012'
     LOOP
-	EXECUTE 'UPDATE hpms h SET "dataYear" =
+	EXECUTE 'UPDATE hpms h SET "data_year" =
 		(SELECT year_recor FROM ' || r.table_name || ' LIMIT 1)
-		WHERE h."tableName" = ''' || r.table_name || '''';
-	EXECUTE 'UPDATE hpms h SET "numSegments" =
-		(SELECT count(*) FROM ' || r.table_name || ')
-		WHERE h."tableName" = ''' || r.table_name || '''';
-	EXECUTE 'UPDATE hpms h SET "stateFIPS" =
+		WHERE h."table_name" = ''' || r.table_name || '''';
+	EXECUTE 'UPDATE hpms h SET "state_fips" =
 		(SELECT state_code FROM ' || r.table_name || ' LIMIT 1)
-		WHERE h."tableName" = ''' || r.table_name || '''';
+		WHERE h."table_name" = ''' || r.table_name || '''';
     END LOOP;
 END
 $do$
