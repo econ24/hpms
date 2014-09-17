@@ -32,14 +32,19 @@ module.exports.routes = {
   // located at `views/home/index.ejs`
   // 
   // (This would also work if you had a file at: `/views/home.ejs`)
-  '/': {
-      view: 'home/index'
-  },
+    '/': {
+        view: 'home/index'
+    },
 
-  '/hpms/:id/geo': {
-      controller    : 'hpms',
-      action        : 'geo'
-  }
+    '/hpms/:id/geo': 'hpms.geo',
+
+    '/hpms/aadt': 'hpms.aadt',
+
+    '/hpms/:route/interstate_data': 'hpms.getInterstateData',
+
+    '/hpms/:route/:type/:state/intrastate_data': 'hpms.getIntrastateData',
+
+    '/hpms/interstates': 'hpms.getInterstates'
   /*
   // But what if you want your home page to display
   // a signup form located at `views/user/signup.ejs`?
