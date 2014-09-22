@@ -44,7 +44,11 @@ module.exports.routes = {
 
     '/hpms/:route/:type/:state/intrastate_data': 'hpms.getIntrastateData',
 
-    '/hpms/interstates': 'hpms.getInterstates'
+    '/hpms/interstates': 'hpms.getInterstates',
+
+    '/hpms/:route/interstate_geo': 'hpms.getInterstateGeo',
+
+    '/hpms/interstates_by_state': 'hpms.interstatesByState'
   /*
   // But what if you want your home page to display
   // a signup form located at `views/user/signup.ejs`?
