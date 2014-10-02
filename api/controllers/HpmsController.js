@@ -39,12 +39,13 @@ module.exports = {
             // create SQL query string
         	var sql = 'SELECT ST_AsGeoJSON(the_geom) AS route_shape, '+
                        'state_code, aadt_vn, f_system_v '+
-                       'FROM "'+tableName+'"';
+                       'FROM "'+tableName+'" ' +
+                       'WHERE the_geom IS NOT NULL';
 
             // check for a specific road type
             var roadType = +req.param("roadType");
             if (roadType >= 1 && roadType <= 7) {
-                sql += " WHERE f_system_v = " + roadType;
+                sql += " AND f_system_v = " + roadType;
             }
 
             // query the DB
@@ -77,9 +78,8 @@ module.exports = {
     			res.send(topology);
 
                 // This method is used by the above opoJSON conversion in order to preserve the geoJSON properties
-                function preserveProperties(p, k, v) {
-                    p[k] = v;
-                    return true;
+                function preserveProperties(feature) {
+                    return feature.properties;
                 }
         	}); // end Hpms.query function
 
@@ -113,7 +113,7 @@ module.exports = {
         })
     },
 
-    getInterstateData: function(req, res) {
+    getAverageInterstateData: function(req, res) {
         var route = req.param('route');
 
         var sql = 'SELECT sum(aadt_vn) AS aadt, count(aadt_vn) AS segments, state_code as state '+
@@ -146,7 +146,7 @@ module.exports = {
         })
     },
 
-    getIntrastateData: function(req, res) {
+    getAverageIntrastateData: function(req, res) {
         var route = req.param('route'),
             type = req.param('type'),
             state = req.param('state');
@@ -182,10 +182,11 @@ module.exports = {
         var route = req.param('route');
 
         var sql = 'SELECT aadt_vn AS aadt, f_system_v AS type, route_numb as route, '+
-                    'state_code AS state, ST_AsGeoJSON(the_geom) AS json '+
+                    'state_code AS state, ST_AsGeoJSON(the_geom) AS json, objectid '+
                     'FROM "2012_NHS" '+
                     'WHERE route_numb = ' + route + ' ' +
-                    'AND f_system_v = 1';
+                    'AND f_system_v = 1 '+
+                    'AND the_geom IS NOT NULL';
 
         Hpms.query(sql, {}, function(error, data) {
             if (error) {
@@ -198,7 +199,7 @@ module.exports = {
             }
             // for each result in the result set, generate a new geoJSON feature object
             data.rows.forEach(function(route){
-                var routeFeature = { type: "Feature" };
+                var routeFeature = { type: "Feature", id: route.objectid };
                 // retrieve geometry data
                 routeFeature.geometry = JSON.parse(route.json);
                 // retrieve properties
@@ -217,13 +218,11 @@ module.exports = {
                                              {"property-transform": preserveProperties, "quantization": 1e6});
             topology = topojson.simplify(topology, {"minimum-area": 5e-6, "coordinate-system": "cartesian"});
 
-            // append topoJSON to response object
             res.send(topology);
 
             // This method is used by the above opoJSON conversion in order to preserve the geoJSON properties
-            function preserveProperties(obj, key, val) {
-                obj[key] = val;
-                return true;
+            function preserveProperties(feature) {
+                return feature.properties;
             }
         }); // end Hpms.query function
     },
@@ -284,9 +283,8 @@ module.exports = {
                 return console.log(error);
             }
 
-            var response = {};
+            var response = new Object(null);
 
-            // for each result in the result set, generate a new geoJSON feature object
             data.rows.forEach(function(route){
                 response[route.state] = +route.aadt / +route.segments;
             });
@@ -304,6 +302,68 @@ module.exports = {
 
             return list;
         }
+    },
+
+    getStateData: function(req, res) {
+        var state = req.param('state');
+
+        var sql = 'SELECT sum(aadt_vn) AS aadt, count(*) AS segments, f_system_v AS type, state_code AS fips '+
+                    'FROM "'+state+'" '+
+                    'GROUP BY f_system_v, state_code;'
+
+        Hpms.query(sql, {}, function(error, data) {
+            if (error) {
+                res.send({status:500, message:error},500);
+                return console.log(error);
+            }
+
+            var response = new Object(null);
+
+            response.state = state;
+            response.fips = data.rows[0].fips;
+            response.data = [];
+
+            data.rows.forEach(function(row) {
+                var obj = new Object(null);
+
+                obj.type = +row.type;
+                obj.aadt = Math.round(+row.aadt/+row.segments);
+                obj.segments = +row.segments;
+                obj.state = response.fips;
+
+                response.data.push(obj);
+            });
+
+            res.send(response);
+        })
+    },
+
+    getInterstateData: function(req, res) {
+        var interstate = req.param('route');
+
+        var sql = 'SELECT aadt_vn AS aadt, count(*) AS segments '+
+                    'FROM "2012_NHS" '+
+                    'WHERE f_system_v = 1 '+
+                    'AND route_numb = '+interstate+' '+
+                    'GROUP BY aadt';
+
+        Hpms.query(sql, {}, function(error, data) {
+            if (error) {
+                res.send({status:500, message:error},500);
+                return console.log(error);
+            }
+
+            var response = new Object(null);
+
+            response.interstate = interstate;
+            response.segments = [];
+
+            data.rows.forEach(function(row) {
+                response.segments.push({aadt:+row.aadt, segments:+row.segments});
+            });
+
+            res.send(response);
+        })
     },
 
       /**

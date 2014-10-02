@@ -38,17 +38,29 @@ module.exports.routes = {
 
     '/hpms/:id/geo': 'hpms.geo',
 
+    // Returns an array of all aadt values for posted states and types.
+    // Used by hpms_map to calculate route color scale domain.
     '/hpms/aadt': 'hpms.aadt',
 
-    '/hpms/:route/interstate_data': 'hpms.getInterstateData',
+    '/hpms/:route/:type/:state/average_intrastate_data': 'hpms.getAverageIntrastateData',
 
-    '/hpms/:route/:type/:state/intrastate_data': 'hpms.getIntrastateData',
-
-    '/hpms/interstates': 'hpms.getInterstates',
+    '/hpms/:route/average_interstate_data': 'hpms.getAverageInterstateData',
 
     '/hpms/:route/interstate_geo': 'hpms.getInterstateGeo',
 
-    '/hpms/interstates_by_state': 'hpms.interstatesByState'
+    // Returns a list of interstate objects containg aadt, segment, and route number data.
+    // Used by hpms_menu to populate interstates list.
+    '/hpms/interstates': 'hpms.getInterstates',
+
+    // Returns an object consisting of state IDs and average aadt of the state's type 1 routes.
+    // Used by hpms_interstates to generate domain for coloring states.
+    '/hpms/interstates_by_state': 'hpms.interstatesByState',
+
+    // Returns an object
+    '/hpms/:state/state_data': 'hpms.getStateData',
+
+    '/hpms/:route/interstate_data': 'hpms.getInterstateData'
+
   /*
   // But what if you want your home page to display
   // a signup form located at `views/user/signup.ejs`?
