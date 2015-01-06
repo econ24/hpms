@@ -40,7 +40,6 @@ module.exports.adapters = {
     module: 'sails-postgresql',
     host: 'lor.availabs.org',
     user: 'postgres',
-    password: 'transit',
     database:'HPMS',
     port: 5432,
     pool: true

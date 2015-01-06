@@ -31,6 +31,8 @@ module.exports = {
             // retrieve table name from search result
         	var tableName = result[0].table_name;
 
+            tableName = tableName.replace("arkansas2012", "akranas2012");
+
             // create geoJSON feature collection object
         	var routesCollection = {};
         	routesCollection.type = "FeatureCollection";
@@ -98,6 +100,9 @@ module.exports = {
 
         var sql = '';
         states.forEach(function(d) {
+            d = d.replace("arkansas2012", "arkanas2012");
+            d = d.replace("delaware2012", "deleware2012");
+            d = d.replace("massachusetts2012", "massacusetts2012");
             sql += '(SELECT aadt_vn from ' + d + ' WHERE f_system_v <= ' + types + ') UNION ALL '
         });
         sql = sql.replace(/( UNION ALL $)/, '');
